@@ -20,8 +20,7 @@ from config_single_hm import (
     BOUNDS,
 )
 
-import csv
-from datetime import datetime
+from run_records import best_successful_record, append_best_record, require_fresh_log
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -60,9 +59,17 @@ def main():
     if OPTIMIZER not in dispatch:
         raise ValueError(f"Unknown optimizer '{OPTIMIZER}'")
 
+    require_fresh_log(LOG_CSV)
+
     # ── Run the selected optimization method ──
     best_params, best_obj = dispatch[OPTIMIZER]()
-    best_params = list(best_params)
+    # Include every successful objective call, including local-search evaluations.
+    selected = best_successful_record(LOG_CSV)
+    best_params = [float(selected[name]) for name in PARAMETER_NAMES]
+    loss_key = "total_loss" if "total_loss" in selected else "loss"
+    best_obj = float(selected[loss_key])
+    if loss_key == "loss" and LOSS_FUNCTION == "r2":
+        best_obj = -best_obj
 
     # ── Check number of optimized parameters ──
     if len(best_params) != len(PARAMETER_NAMES):
@@ -91,21 +98,7 @@ def main():
         )
 
     # ── Log final selected best parameters to CSV ──
-    with LOG_CSV.open("a", newline="") as f:
-        csv.writer(f).writerow([
-            OPTIMIZER,                            # Optimization method used
-
-            best_k,                               # Best intrinsic permeability [m²]
-            best_E,                               # Best Young's modulus [Pa]
-
-            -best_obj if LOSS_FUNCTION == "r2" else best_obj,  # Store R² as positive
-            LOSS_FUNCTION,                        # Loss metric used
-
-            datetime.now().isoformat(),           # Timestamp of result
-
-            "best",                               # Status tag
-            "Final selected parameters"           # Description
-        ])
+    append_best_record(LOG_CSV)
 
 
 # ── Entry point: run main() if this script is executed directly ──

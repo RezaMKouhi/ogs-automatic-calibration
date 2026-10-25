@@ -1,5 +1,8 @@
+import os
 from pathlib import Path
 from skopt.space import Real
+
+PROJECT_DIR = Path(__file__).resolve().parent
 
 # ═════════════════════════════════════════════════════════════════════════════
 # CONFIGURATION
@@ -9,7 +12,7 @@ from skopt.space import Real
 MASSFLOW_KEY        = "MassFlowRate"                         # Field name to extract MassFlowRate from VTU
 NODE_ID             = 64                                     # Node ID to extract MassFlowRate from VTU
 
-PRJ_TEMPLATE        = Path("/home/reza/Optimization/single_hm_template.prj") # Path to the template OGS project file to be modified
+PRJ_TEMPLATE        = PROJECT_DIR / "single_hm_template.prj" # Path to the template OGS project file to be modified
 OGS_BIN             = Path("/home/reza/Opengeosys/build/release/bin/ogs")       # Path to the OGS executable binary
 
 # ─── Optimization Selection ─────────────────────────────────────────────────
@@ -22,7 +25,7 @@ OGS_BIN             = Path("/home/reza/Opengeosys/build/release/bin/ogs")       
 # simulated_annealing                             # Physics-Based Metaheuristic
 # nelder_mead                                     # Simplex-Based
 # memetic_algorithm | pso_with_gradient_descent   # Hybrid Method
-OPTIMIZER = "simulated_annealing"
+OPTIMIZER = os.environ.get("OGS_OPTIMIZER", "simulated_annealing")
 
 # ─── Loss Function Selection ────────────────────────────────────────────────
 # Select loss function to guide optimization:
@@ -33,16 +36,15 @@ OPTIMIZER = "simulated_annealing"
 LOSS_FUNCTION = "rmse"
 
 # ─── Output Management ──────────────────────────────────────────────────────
-BASE_OUT_ROOT   = Path("/home/reza/Optimization/optimization_runs_single_hm")  # Root folder for optimization output folders
+BASE_OUT_ROOT   = PROJECT_DIR / "optimization_runs_single_hm"  # Root folder for optimization output folders
 OUT_ROOT        = BASE_OUT_ROOT / OPTIMIZER                                    # Output folder specific to selected optimizer
-LOG_CSV         = Path("/home/reza/Optimization") / f"single_hm_optim_log_{OPTIMIZER}.csv"
+LOG_CSV         = PROJECT_DIR / f"single_hm_optim_log_{OPTIMIZER}.csv"
 # Path to log CSV file recording each trial (parameters, loss, etc.)
-REF_CSV         = Path("/home/reza/Optimization/reference_single_hm.csv")  # Reference measurements to be compared with simulations
+REF_CSV         = PROJECT_DIR / "reference_single_hm.csv"  # Reference measurements to be compared with simulations
 # Required columns: time, MassFlowRate
 
-# ─── Directory Setup (ensure paths exist) ────────────────────────────────────
-LOG_CSV.parent.mkdir(parents=True, exist_ok=True)
-OUT_ROOT.mkdir(parents=True, exist_ok=True)
+# Each evaluation gets a unique run_id/run_dir, recorded in LOG_CSV.
+# Plotting resolves that recorded path; rounded parameter names are not identities.
 
 # ─── Parameter Search Space ──────────────────────────────────────────────────
 BOUNDS = [

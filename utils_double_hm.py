@@ -16,8 +16,8 @@ from config_double_hm import (
     TARGET_WEIGHTS,
 )
 
-import os
-import csv
+import subprocess
+from run_records import new_run, append_record
 import shutil
 import numpy as np
 import pandas as pd
@@ -268,7 +268,7 @@ def run_simulation(
     bishop_exponent: float,
     run_dir: Path,
 ):
-    run_dir.mkdir(parents=True, exist_ok=True)
+    run_dir.mkdir(parents=True, exist_ok=False)
 
     prj = OGSProject(PRJ_TEMPLATE)
     prj.set_permeability(k_perm)
@@ -288,9 +288,11 @@ def run_simulation(
             except OSError:
                 shutil.copy2(mesh_path, dst)
 
-    ret = os.system(f"{OGS_BIN} {prj_file} -o {run_dir}")
-    if ret != 0:
-        raise RuntimeError(f"OGS exited with status {ret}")
+    with (run_dir / "ogs.log").open("w") as log:
+        subprocess.run(
+            [str(OGS_BIN), str(prj_file), "-o", str(run_dir)],
+            stdout=log, stderr=subprocess.STDOUT, check=True,
+        )
 
 
 # ─── Objective Function ─────────────────────────────────────────────────────
@@ -308,16 +310,10 @@ def objective(params) -> float:
     phi = np.nan
     bishop_exponent = np.nan
 
+    run_id, run_dir = new_run(OUT_ROOT)
+
     try:
         k_perm, E, nu, phi, bishop_exponent = [float(v) for v in params]
-
-        run_dir = OUT_ROOT / (
-            f"run_k_{k_perm:.2e}"
-            f"_E_{E:.2e}"
-            f"_nu_{nu:.3f}"
-            f"_phi_{phi:.3f}"
-            f"_bishop_exponent_{bishop_exponent:.3f}"
-        )
 
         run_simulation(k_perm, E, nu, phi, bishop_exponent, run_dir)
 
@@ -382,66 +378,29 @@ def objective(params) -> float:
         status, note = "fail", str(e)
 
     # Log result
-    with LOG_CSV.open("a", newline="") as f:
-        w = csv.writer(f)
-
-        if f.tell() == 0:
-            w.writerow([
-                "algorithm",
-
-                "permeability",
-                "youngs_modulus",
-                "poisson_ratio",
-                "porosity",
-                "bishop_exponent",
-
-                "total_loss",
-                "metric",
-
-                "flow_loss",
-                "settlement_loss",
-
-                "flow_raw_metric",
-                "settlement_raw_metric",
-
-                "flow_scale",
-                "settlement_scale",
-
-                "n_flow",
-                "n_settlement",
-
-                "timestamp",
-                "status",
-                "note",
-            ])
-
-        w.writerow([
-            OPTIMIZER,
-
-            k_perm,
-            E,
-            nu,
-            phi,
-            bishop_exponent,
-
-            metric_val,
-            LOSS_FUNCTION,
-
-            flow_loss,
-            settlement_loss,
-
-            flow_raw,
-            settlement_raw,
-
-            flow_scale,
-            settlement_scale,
-
-            n_flow,
-            n_settlement,
-
-            datetime.now().isoformat(),
-            status,
-            note,
-        ])
+    append_record(LOG_CSV, {
+        'algorithm': OPTIMIZER,
+        'permeability': k_perm,
+        'youngs_modulus': E,
+        'poisson_ratio': nu,
+        'porosity': phi,
+        'bishop_exponent': bishop_exponent,
+        'total_loss': metric_val,
+        'metric': LOSS_FUNCTION,
+        'flow_loss': flow_loss,
+        'settlement_loss': settlement_loss,
+        'flow_raw_metric': flow_raw,
+        'settlement_raw_metric': settlement_raw,
+        'flow_scale': flow_scale,
+        'settlement_scale': settlement_scale,
+        'n_flow': n_flow,
+        'n_settlement': n_settlement,
+        'timestamp': datetime.now().isoformat(),
+        'status': status,
+        'note': note,
+        "run_id": run_id,
+        "run_dir": str(run_dir.resolve()),
+        "output_state": "available" if status == "ok" else "failed",
+    })
 
     return metric_val

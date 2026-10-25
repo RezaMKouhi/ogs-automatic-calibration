@@ -1,5 +1,8 @@
+import os
 from pathlib import Path
 from skopt.space import Real
+
+PROJECT_DIR = Path(__file__).resolve().parent
 
 # ═════════════════════════════════════════════════════════════════════════════
 # CONFIGURATION
@@ -19,7 +22,7 @@ SETTLEMENT_POSITIVE_DOWNWARD = True                          # settlement_top = 
 VTU_PATTERN         = "*_t_*.vtu"                            # OGS main-domain VTU output pattern
 NODE_ID             = TOP_NODE_ID                            # Backward compatibility with old one-node code
 
-PRJ_TEMPLATE        = Path("/home/reza/Optimization/double_hm_template.prj")     # Path to the template OGS project file to be modified
+PRJ_TEMPLATE        = PROJECT_DIR / "double_hm_template.prj"     # Path to the template OGS project file to be modified
 OGS_BIN             = Path("/home/reza/Opengeosys/build/release/bin/ogs")       # Path to the OGS executable binary
 
 # ─── Optimization Selection ─────────────────────────────────────────────────
@@ -32,7 +35,7 @@ OGS_BIN             = Path("/home/reza/Opengeosys/build/release/bin/ogs")       
 # simulated_annealing                             # Physics-Based Metaheuristic
 # nelder_mead                                     # Simplex-Based
 # memetic_algorithm | pso_with_gradient_descent   # Hybrid Method
-OPTIMIZER = "pso_with_gradient_descent"
+OPTIMIZER = os.environ.get("OGS_OPTIMIZER", "pso_with_gradient_descent")
 
 # ─── Loss Function Selection ────────────────────────────────────────────────
 # Select loss function to guide optimization:
@@ -52,16 +55,15 @@ TARGET_WEIGHTS = {
 }
 
 # ─── Output Management ──────────────────────────────────────────────────────
-BASE_OUT_ROOT   = Path("/home/reza/Optimization/optimization_runs_double_hm")      # Root folder for optimization output folders
+BASE_OUT_ROOT   = PROJECT_DIR / "optimization_runs_double_hm"      # Root folder for optimization output folders
 OUT_ROOT        = BASE_OUT_ROOT / OPTIMIZER                                        # Output folder specific to selected optimizer
-LOG_CSV         = Path("/home/reza/Optimization") / f"double_hm_optim_log_{OPTIMIZER}.csv"
+LOG_CSV         = PROJECT_DIR / f"double_hm_optim_log_{OPTIMIZER}.csv"
 # Path to log CSV file recording each trial (parameters, target losses, total loss, etc.)
-REF_CSV         = Path("/home/reza/Optimization/reference_double_hm.csv")        # Reference measurements to be compared with simulations
+REF_CSV         = PROJECT_DIR / "reference_double_hm.csv"        # Reference measurements to be compared with simulations
 # Required columns: time, MassFlowRate, settlement_top
 
-# ─── Directory Setup (ensure paths exist) ────────────────────────────────────
-LOG_CSV.parent.mkdir(parents=True, exist_ok=True)
-OUT_ROOT.mkdir(parents=True, exist_ok=True)
+# Each evaluation gets a unique run_id/run_dir, recorded in LOG_CSV.
+# Plotting resolves that recorded path; rounded parameter names are not identities.
 
 # ─── Parameter Search Space ──────────────────────────────────────────────────
 BOUNDS = [

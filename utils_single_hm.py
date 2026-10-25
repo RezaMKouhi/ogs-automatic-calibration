@@ -10,8 +10,8 @@ from config_single_hm import (
     LOSS_FUNCTION,
 )
 
-import os
-import csv
+import subprocess
+from run_records import new_run, append_record
 import shutil
 import numpy as np
 import pandas as pd
@@ -163,7 +163,7 @@ def run_simulation(
     E: float,
     run_dir: Path,
 ):
-    run_dir.mkdir(parents=True, exist_ok=True)
+    run_dir.mkdir(parents=True, exist_ok=False)
 
     prj = OGSProject(PRJ_TEMPLATE)
     prj.set_permeability(k_perm)
@@ -179,9 +179,11 @@ def run_simulation(
             except OSError:
                 shutil.copy2(mesh_path, dst)
 
-    ret = os.system(f"{OGS_BIN} {prj_file} -o {run_dir}")
-    if ret != 0:
-        raise RuntimeError(f"OGS exited with status {ret}")
+    with (run_dir / "ogs.log").open("w") as log:
+        subprocess.run(
+            [str(OGS_BIN), str(prj_file), "-o", str(run_dir)],
+            stdout=log, stderr=subprocess.STDOUT, check=True,
+        )
 
 
 # ─── Objective Function ─────────────────────────────────────────────────────
@@ -195,13 +197,10 @@ def objective(params) -> float:
     k_perm = np.nan
     E = np.nan
 
+    run_id, run_dir = new_run(OUT_ROOT)
+
     try:
         k_perm, E = [float(v) for v in params]
-
-        run_dir = OUT_ROOT / (
-            f"run_k_{k_perm:.2e}"
-            f"_E_{E:.2e}"
-        )
 
         run_simulation(k_perm, E, run_dir)
 
@@ -233,30 +232,18 @@ def objective(params) -> float:
     to_minimize = -metric_val if LOSS_FUNCTION == "r2" else metric_val
 
     # Log result
-    with LOG_CSV.open("a", newline="") as f:
-        w = csv.writer(f)
-
-        if f.tell() == 0:
-            w.writerow([
-                "algorithm",
-                "permeability",
-                "youngs_modulus",
-                "loss",
-                "metric",
-                "timestamp",
-                "status",
-                "note",
-            ])
-
-        w.writerow([
-            OPTIMIZER,
-            k_perm,
-            E,
-            metric_val,
-            LOSS_FUNCTION,
-            datetime.now().isoformat(),
-            status,
-            note,
-        ])
+    append_record(LOG_CSV, {
+        'algorithm': OPTIMIZER,
+        'permeability': k_perm,
+        'youngs_modulus': E,
+        'loss': metric_val,
+        'metric': LOSS_FUNCTION,
+        'timestamp': datetime.now().isoformat(),
+        'status': status,
+        'note': note,
+        "run_id": run_id,
+        "run_dir": str(run_dir.resolve()),
+        "output_state": "available" if status == "ok" else "failed",
+    })
 
     return to_minimize
