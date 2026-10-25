@@ -36,7 +36,7 @@ The reference time series contains `time` and `MassFlowRate` values.
 
 RMSE, MSE, MAE and R² are supported. The comparison uses exactly matching timestamps without interpolation or time weighting.
 
-The example is referred to as the **borehole benchmark**.
+This **axisymmetric borehole benchmark** is adapted from a hydro-mechanical borehole model. A matching public implementation is available in [Thomas Nagel's DFN_OGS repository (Borehole)](https://github.com/nagelt/DFN_OGS/tree/master/Borehole). The calibration example uses study-specific loading conditions and reference parameters, so its settings should not be assumed to be identical to those of the public model.
 
 ### 2. Double-target calibration
 
@@ -62,9 +62,7 @@ For RMSE and MAE, normalization uses the range of matched reference values, with
 
 The default weights are 0.5 for each target.
 
-This example is intended for a **hydro-mechanical drainage-column problem** associated with the Liakopoulos benchmark. The original OGS benchmark documentation is available here:
-
-[OpenGeoSys – Liakopoulos Richards-Mechanics Benchmark](https://www.opengeosys.org/docs/benchmarks/richards-mechanics/liakopoulos/)
+This **hydro-mechanical drainage-column benchmark** is adapted from the [OpenGeoSys Richards–Mechanics implementation of the Liakopoulos drainage experiment](https://www.opengeosys.org/docs/benchmarks/richards-mechanics/liakopoulos/). The two-target calibration and reference parameter choices are specific to this study.
 
 The configuration indices are mesh-specific and should be checked when using another OGS model.
 
@@ -267,13 +265,12 @@ The framework provides a common calibration procedure for applying multiple opti
 
 ## Citation
 
-If this repository is used in research, please cite the associated publication when its final bibliographic information becomes available.
+If this framework is used in research, please cite the associated publication when its final bibliographic information becomes available. The benchmark models used to demonstrate the framework have separate sources:
 
-The underlying OGS benchmarks should also be cited separately where applicable.
+- **Axisymmetric borehole:** [Thomas Nagel — DFN_OGS, Borehole model](https://github.com/nagelt/DFN_OGS/tree/master/Borehole) (publicly available model used as the basis for the adapted calibration example).
+- **Drainage column:** [OpenGeoSys — Liakopoulos Richards–Mechanics benchmark](https://www.opengeosys.org/docs/benchmarks/richards-mechanics/liakopoulos/) (OGS implementation of the Liakopoulos drainage experiment).
 
-For the Liakopoulos benchmark, see:
-
-[OpenGeoSys Liakopoulos benchmark documentation](https://www.opengeosys.org/docs/benchmarks/richards-mechanics/liakopoulos/)
+These sources should be credited when the corresponding benchmark is discussed or reused.
 
 ## License
 
