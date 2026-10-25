@@ -2,6 +2,8 @@
 
 A Python framework for optimization-based parameter calibration of [OpenGeoSys (OGS)](https://www.opengeosys.org/) numerical simulations. It connects OGS project files with 12 optimization methods, runs the numerical model for each candidate parameter set, extracts selected outputs, and evaluates their agreement with reference data.
 
+> **Source-code release:** This repository contains the nine core Python modules, the dependency list, and documentation only. It deliberately does **not** include `run_all.py`, OGS `.prj` project templates, mesh `.vtu` files, reference or generated `.csv` files, plotting files, or simulation outputs. The included scripts cannot be run directly without supplying the benchmark models, meshes, reference datasets, and a compatible OGS installation. No benchmark results are generated or bundled here.
+
 The current implementations are demonstrated using **two hydro-mechanical calibration examples**: a single-target problem with two adjustable parameters and a double-target problem with five adjustable parameters. The overall procedure can be adapted to other OGS processes and calibration targets, but doing so requires model-specific changes to the parameter-editing and output-extraction functions.
 
 ## Calibration procedure
@@ -256,7 +258,7 @@ The evaluation logs contain information such as:
 
 For the double-target example, the log also includes the individual hydraulic and mechanical errors, normalization scales and number of matched observations.
 
-The best successful evaluation is selected from the recorded results and written to a separate CSV file.
+The best successful evaluation is selected from the recorded results and appended to the optimization log with `status=best`. The corresponding `run_id` and `run_dir` identify the OGS evaluation used.
 
 When rerunning the same optimizer, an existing nonempty evaluation log must be archived, renamed or removed before beginning a new run.
 

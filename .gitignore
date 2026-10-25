@@ -1,0 +1,30 @@
+# Python caches and environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Private model inputs, datasets, and local batch/plotting scripts
+*.prj
+*.vtu
+*.pvtu
+*.pvd
+*.csv
+*.ipynb
+run_all.py
+plot_results.py
+plot_settings.py
+single_hm_template_raw/
+double_hm_template_raw/
+
+# Generated optimization output
+optimization_runs_single_hm/
+optimization_runs_double_hm/
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

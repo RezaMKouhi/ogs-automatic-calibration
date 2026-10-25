@@ -23,7 +23,7 @@ VTU_PATTERN         = "*_t_*.vtu"                            # OGS main-domain V
 NODE_ID             = TOP_NODE_ID                            # Backward compatibility with old one-node code
 
 PRJ_TEMPLATE        = PROJECT_DIR / "double_hm_template.prj"     # Path to the template OGS project file to be modified
-OGS_BIN             = Path("/home/reza/Opengeosys/build/release/bin/ogs")       # Path to the OGS executable binary
+OGS_BIN             = Path(os.environ.get("OGS_BIN", "/home/reza/Opengeosys/build/release/bin/ogs"))       # Path to the OGS executable binary
 
 # ─── Optimization Selection ─────────────────────────────────────────────────
 # Select which optimizer to use:
