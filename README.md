@@ -2,8 +2,6 @@
 
 A Python framework for optimization-based parameter calibration of [OpenGeoSys (OGS)](https://www.opengeosys.org/) numerical simulations. It connects OGS project files with 12 optimization methods, runs the numerical model for each candidate parameter set, extracts selected outputs, and evaluates their agreement with reference data.
 
-> **Source-code release:** This repository contains the nine core Python modules, the dependency list, and documentation only. It deliberately does **not** include `run_all.py`, OGS `.prj` project templates, mesh `.vtu` files, reference or generated `.csv` files, plotting files, or simulation outputs. The included scripts cannot be run directly without supplying the benchmark models, meshes, reference datasets, and a compatible OGS installation. No benchmark results are generated or bundled here.
-
 The current implementations are demonstrated using **two hydro-mechanical calibration examples**: a single-target problem with two adjustable parameters and a double-target problem with five adjustable parameters. The overall procedure can be adapted to other OGS processes and calibration targets, but doing so requires model-specific changes to the parameter-editing and output-extraction functions.
 
 ## Calibration procedure
@@ -34,11 +32,11 @@ The single-target example considers the calibration of two hydro-mechanical para
 
 The simulated mass flow rate is extracted from the OGS VTU output and compared with the reference time series.
 
-The reference data are read from `reference_single_hm.csv`, which requires the columns `time` and `MassFlowRate`.
+The reference time series contains `time` and `MassFlowRate` values.
 
 RMSE, MSE, MAE and R² are supported. The comparison uses exactly matching timestamps without interpolation or time weighting.
 
-The example is referred to as the **borehole benchmark**. The source OGS project, its version and any modifications should be documented with the benchmark files.
+The example is referred to as the **borehole benchmark**.
 
 ### 2. Double-target calibration
 
@@ -56,7 +54,7 @@ The double-target example considers five adjustable hydro-mechanical parameters 
 1. **Hydraulic response:** Sum of `MassFlowRate` at the configured bottom mesh-point indices (initially `[0, 41, 82]`).
 2. **Mechanical response:** Vertical displacement at the configured top mesh-point index (initially `202`), converted to positive-downward settlement when configured.
 
-The reference data are read from `reference_double_hm.csv`, requiring the columns `time`, `MassFlowRate` and `settlement_top`.
+The reference time series contains `time`, `MassFlowRate` and `settlement_top` values.
 
 The two response errors are calculated separately and normalized to account for their different magnitudes and units. The combined objective function is formed using the configured target weights.
 
@@ -113,17 +111,6 @@ The main files are organized according to the two calibration examples.
 | `run_double_hm.py` | Main execution script for double-target calibration |
 | `run_records.py` | Run identification, evaluation logging and best-result selection |
 | `requirements.txt` | Required Python dependencies |
-
-The calibration scripts also require OGS project templates, associated mesh files and reference CSV data.
-
-The default filenames are:
-
-- `single_hm_template.prj`
-- `double_hm_template.prj`
-- `reference_single_hm.csv`
-- `reference_double_hm.csv`
-
-These benchmark input files must be supplied separately. The `.prj` files may also reference additional mesh or input files required by OGS.
 
 ## Installation
 
@@ -220,7 +207,7 @@ or:
 OGS_OPTIMIZER=particle_swarm_optimization python run_double_hm.py
 ```
 
-The OGS executable can be specified using the `OGS_BIN` environment variable when using the updated configuration files.
+To execute either example, configure the local OGS executable and the model-specific inputs and reference time series in its configuration file.
 
 ## Objective function and reference data
 
