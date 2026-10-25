@@ -13,7 +13,7 @@ MASSFLOW_KEY        = "MassFlowRate"                         # Field name to ext
 NODE_ID             = 64                                     # Node ID to extract MassFlowRate from VTU
 
 PRJ_TEMPLATE        = PROJECT_DIR / "single_hm_template.prj" # Path to the template OGS project file to be modified
-OGS_BIN             = Path(os.environ.get("OGS_BIN", "/home/reza/Opengeosys/build/release/bin/ogs"))       # Path to the OGS executable binary
+OGS_BIN             = Path("/home/reza/Opengeosys/build/release/bin/ogs")       # Path to the OGS executable binary
 
 # ─── Optimization Selection ─────────────────────────────────────────────────
 # Select which optimizer to use:
