@@ -36,7 +36,7 @@ The reference time series contains `time` and `MassFlowRate` values.
 
 RMSE, MSE, MAE and R² are supported. The comparison uses exactly matching timestamps without interpolation or time weighting.
 
-This **axisymmetric borehole benchmark** is adapted from a hydro-mechanical borehole model. A matching public implementation is available in [Thomas Nagel's DFN_OGS repository (Borehole)](https://github.com/nagelt/DFN_OGS/tree/master/Borehole). The calibration example uses study-specific loading conditions and reference parameters, so its settings should not be assumed to be identical to those of the public model.
+This **axisymmetric borehole benchmark** is adapted from the hydro-mechanical borehole model documented by [Nagel (2025), *DFN OGS: Hydro-Mechanical Borehole Model*](https://github.com/nagelt/DFN_OGS/blob/master/Borehole/borehole_HM.ipynb). The calibration example uses study-specific loading conditions and reference parameters, so its settings should not be assumed to be identical to those of the public model.
 
 ### 2. Double-target calibration
 
@@ -62,7 +62,7 @@ For RMSE and MAE, normalization uses the range of matched reference values, with
 
 The default weights are 0.5 for each target.
 
-This **hydro-mechanical drainage-column benchmark** is adapted from the [OpenGeoSys Richards–Mechanics implementation of the Liakopoulos drainage experiment](https://www.opengeosys.org/docs/benchmarks/richards-mechanics/liakopoulos/). The two-target calibration and reference parameter choices are specific to this study.
+This **hydro-mechanical drainage-column benchmark** is adapted from the [OpenGeoSys Richards–Mechanics implementation documented by Wang (2026)](https://www.opengeosys.org/6.5.7/docs/benchmarks/richards-mechanics/liakopoulos/), which is based on the drainage experiment of Liakopoulos (1964). The two-target calibration and reference parameter choices are specific to this study.
 
 The configuration indices are mesh-specific and should be checked when using another OGS model.
 
@@ -265,12 +265,13 @@ The framework provides a common calibration procedure for applying multiple opti
 
 ## Citation
 
-If this framework is used in research, please cite the associated publication when its final bibliographic information becomes available. The benchmark models used to demonstrate the framework have separate sources:
+If this framework is used in research, please cite the associated publication when its final bibliographic information becomes available. The two adapted calibration examples draw on the following separate benchmark sources (as cited in the manuscript):
 
-- **Axisymmetric borehole:** [Thomas Nagel — DFN_OGS, Borehole model](https://github.com/nagelt/DFN_OGS/tree/master/Borehole) (publicly available model used as the basis for the adapted calibration example).
-- **Drainage column:** [OpenGeoSys — Liakopoulos Richards–Mechanics benchmark](https://www.opengeosys.org/docs/benchmarks/richards-mechanics/liakopoulos/) (OGS implementation of the Liakopoulos drainage experiment).
+- **Axisymmetric borehole model:** Nagel, T. (2025). *DFN OGS: Hydro-Mechanical Borehole Model*. GitHub repository, [`Borehole/borehole_HM.ipynb`](https://github.com/nagelt/DFN_OGS/blob/master/Borehole/borehole_HM.ipynb). Initial commit: 3 June 2025. Accessed: 26 October 2026.
+- **Richards–Mechanics drainage-column implementation:** Wang, W. (2026). *A Test Based on the Liakopoulos Experiment*. OpenGeoSys Community, *OpenGeoSys Benchmark Documentation*, version 6.5.7. [Benchmark page](https://www.opengeosys.org/6.5.7/docs/benchmarks/richards-mechanics/liakopoulos/). Accessed: 26 October 2026.
+- **Original drainage experiment:** Liakopoulos, A. C. (1964). *Transient Flow through Unsaturated Porous Media*. PhD thesis, University of California, Berkeley.
 
-These sources should be credited when the corresponding benchmark is discussed or reused.
+These references credit the original model and experiment sources. The parameter-calibration setups, reference parameter choices, and calibration targets used in this repository are study-specific adaptations; they should not be presented as unchanged versions of the source benchmarks.
 
 ## License
 
